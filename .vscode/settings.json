@@ -1,0 +1,8 @@
+{
+    "prettier.tabWidth": 4,
+    "prettier.useTabs": false, // 缩进不使用tab，使用空格
+    "editor.tabSize": 4,
+    "editor.detectIndentation": false,
+    "editor.formatOnType": true,
+    "editor.formatOnSave": true
+}

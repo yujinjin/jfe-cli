@@ -1,0 +1,56 @@
+{
+    "name": "jfe-cli",
+    "version": "0.0.1",
+    "description": "前端项目框架脚手架。",
+    "main": "./bin/index.js",
+    "type": "module",
+    "bin": {
+        "jfe": "bin/index.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/yujinjin/jfe-cli.git"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "cli"
+    ],
+    "author": "jinyu <yujinjin9@126.com>",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/yujinjin/jfe-cli/issues"
+    },
+    "dependencies": {
+        "chalk": "^5.1.2",
+        "figlet": "^1.5.2",
+        "commander": "^9.4.1",
+        "fs-extra": "^10.1.0",
+        "handlebars": "^4.7.7",
+        "inquirer": "^9.1.4",
+        "log-symbols": "^5.1.0",
+        "ora": "^6.1.2",
+        "update-notifier": "^6.0.2",
+        "download-git-repo": "^3.0.2"
+    },
+    "devDependencies": {
+        "@babel/eslint-parser": "^7.16.5",
+        "eslint": "^8.6.0",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-plugin-prettier": "^4.2.1",
+        "eslint-plugin-promise": "^6.1.1",
+        "eslint-plugin-standard": "^5.0.0",
+        "prettier": "^2.7.1"
+    },
+    "prettier": {
+        "tabWidth": 4,
+        "useTabs": false,
+        "jsxBracketSameLine": false,
+        "printWidth": 200,
+        "trailingComma": "none",
+        "arrowParens": "avoid",
+        "semi": true,
+        "singleQuote": false
+    }
+}

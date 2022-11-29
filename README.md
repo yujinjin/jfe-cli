@@ -1,2 +1,2 @@
-# front-end-project-cli
+# jfe-cli
 前端项目脚手架
