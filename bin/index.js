@@ -3,7 +3,7 @@
  * @创建者: yujinjin9@126.com
  * @创建时间: 2022-11-17 10:59:56
  * @最后修改作者: yujinjin9@126.com
- * @最后修改时间: 2022-11-29 16:37:27
+ * @最后修改时间: 2022-11-29 17:20:47
  * @项目的路径: \jfe-cli\bin\index.js
  * @描述: node 执行的脚本
  */
@@ -57,11 +57,13 @@ program
 
 // template 下载/更新模板
 program
+    .usage("<commands> [options]")
     .command("download <template_name>")
     .alias("d")
     .description("Download template for project.")
-    .action(templateName => {
-        download(templateName);
+    .option("-f, --force", "overwrite target directory if it exists") // 强制覆盖
+    .action((templateName, options) => {
+        download(templateName, options.force);
     });
 
 // 创建一个项目
@@ -72,8 +74,8 @@ program
     .alias("c")
     .description("Create a new front end project.")
     .option("-f, --force", "overwrite target directory if it exists") // 强制覆盖
-    .action(project => {
-        create(project);
+    .action((project, options) => {
+        create(project, options);
     });
 
 // 解析命令行参数
