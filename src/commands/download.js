@@ -18,7 +18,7 @@ import { fileURLToPath } from "url";
 const __dirname = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../");
 
 // 模板目录路径
-const templatesPath = path.resolve(__dirname, "./templates");
+export const templatesPath = path.resolve(__dirname, "./templates");
 
 // 模板列表
 const templateList = JSON.parse(fs.readFileSync(path.resolve(__dirname, "./src/template-list.json"), "utf8"));
@@ -60,6 +60,10 @@ async function download(directoryName, url, isNew = false) {
                 downloadSpinner.text = "Download template " + directoryName + " successful.";
                 // 终止等待动画并显示 ✔ 标志
                 downloadSpinner.succeed();
+                const exists = await fs.pathExists(templatesPath + "/" + directoryName + "/template.config.js");
+                if (exists) {
+                    fs.renameSync(templatesPath + "/" + directoryName + "/template.config.js", templatesPath + "/" + directoryName + ".config.js");
+                }
                 resolve();
             });
         });
@@ -94,5 +98,6 @@ export default async function (templateName, isNew = false) {
         findTemplate = templateList[answers.template];
     }
     await download(findTemplate.name, findTemplate.link, isNew);
+    
     return findTemplate.name;
 }

@@ -1,5 +1,15 @@
 [
     {
+        "name": "qifu-cms-vuecli-template",
+        "link": "github:yujinjin/front-end-project-template#qifu-cms-vuecli-template",
+        "descripte": "后台内容管理系统，基于vue-cli5 + vue3 + pinia + element-plus + vue-router + sass；风格：绿色、紧凑型"
+    },
+    {
+        "name": "qifu-cms-vite-template",
+        "link": "github:yujinjin/front-end-project-template#qifu-cms-vite-template",
+        "descripte": "后台内容管理系统，基于vite + vue3 + pinia + element-plus + vue-router + sass；风格：绿色、紧凑型"
+    },
+    {
         "name": "360-manager-h5",
         "link": "github:yujinjin/front-end-project-template#360-manager-h5",
         "descripte": "后台内容管理系统，其技术框架：vue-cli5 + vue3 + pinia2 + element-plus2 + mockjs"

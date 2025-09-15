@@ -1,6 +1,6 @@
 {
     "name": "jfe-cli",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "前端项目框架脚手架。",
     "main": "./bin/index.js",
     "type": "module",

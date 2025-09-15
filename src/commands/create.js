@@ -13,7 +13,7 @@ import chalk from "chalk";
 import handlebars from "handlebars";
 import symbols from "log-symbols";
 import inquirer from "inquirer";
-import downloadTemplate from "./download.js";
+import downloadTemplate, { templatesPath } from "./download.js";
 import { fileURLToPath } from "url";
 
 const __dirname = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../");
@@ -28,14 +28,16 @@ async function validateProjectDirectory(projectName, options) {
                     type: "input",
                     message: "项目名称:",
                     name: "projectName",
-                    validate: val => {
-                        // 对输入的值做判断
-                        if (!val || !val.trim()) {
-                            return chalk.red("项目名不能为空，请重新输入");
-                        } else if (val.includes(" ")) {
-                            return chalk.red("项目名不能包含空格等特殊字符，请重新输入");
+                    validate: function (input) {
+                        if (!input) {
+                            return chalk.red("请输入项目名称");
+                        } else if (input.length < 3) {
+                            return chalk.red("项目名称不能少于3个字符");
+                        } else if (!/^[a-zA-Z0-9_\\-]+$/.test(input)) {
+                            return chalk.red("项目名称只能包含字母、数字、下划线和中划线");
+                        } else {
+                            return true;
                         }
-                        return true;
                     }
                 }
             ]);
@@ -61,7 +63,7 @@ async function validateProjectDirectory(projectName, options) {
                     {
                         name: "isOverwrite", // 与返回值对应
                         type: "list", // list 类型
-                        message: "Target directory exists, Please choose an action",
+                        message: "项目目录已存在，是否覆盖？",
                         choices: [
                             { name: "Overwrite", value: true },
                             { name: "Cancel", value: false }
@@ -71,7 +73,7 @@ async function validateProjectDirectory(projectName, options) {
                 // 选择 Cancel
                 if (!isOverwrite) {
                     console.log(symbols.info, chalk.blue("Cancel"));
-                    return null;
+                    process.exit();
                 } else {
                     // 选择 Overwirte ，先删除掉原有重名目录
                     console.log(symbols.info, chalk.green("Removing"));
@@ -91,7 +93,8 @@ export default async function (projectName, options) {
     try {
         projectName = await validateProjectDirectory(projectName, options);
         const templateName = await downloadTemplate(null, false);
-        const answers = await inquirer.prompt([
+        const exists = await fs.pathExists(templatesPath + "/" + templateName + ".config.js");
+        const questions = [
             {
                 type: "input", // 类型，其他类型看官方文档
                 name: "description", // 请输入项目描述
@@ -116,7 +119,41 @@ export default async function (projectName, options) {
                 message: "是否在服务器已经启动后开启浏览器",
                 default: false // 默认值，用户不输入时用此值
             }
-        ]);
+        ];
+        const compileFiles = ["/package.json", "/.env"];
+        const scripts = ["mserve", "serve", "build"];
+        if (exists) {
+            const templateConfig = (await import(`file://${templatesPath}/${templateName}.config.js`)).default;
+            if (templateConfig.compileFiles?.length) {
+                compileFiles.splice(0, compileFiles.length, ...templateConfig.compileFiles);
+            }
+            if (templateConfig.scripts?.length) {
+                scripts.splice(0, scripts.length, ...templateConfig.scripts);
+            }
+            if (templateConfig.questions?.length) {
+                questions.splice(
+                    0,
+                    questions.length,
+                    ...templateConfig.questions.map(item => {
+                        if (item.validate) {
+                            return {
+                                ...item,
+                                validate: function (input) {
+                                    const message = item.validate(input);
+                                    if (message) {
+                                        return chalk.red(message);
+                                    }
+                                    return true;
+                                }
+                            };
+                        } else {
+                            return { ...item };
+                        }
+                    })
+                );
+            }
+        }
+        const answers = await inquirer.prompt(questions);
         // Spinner 初始设置
         const spinner = ora(chalk.cyan("Initializing project..."));
         // 开始执行等待动画
@@ -135,17 +172,17 @@ export default async function (projectName, options) {
         };
 
         // 把要替换的文件准备好
-        const multiFiles = [`${targetPath}/package.json`, `${targetPath}/.env`];
+        // const multiFiles = [`${targetPath}/package.json`, `${targetPath}/.env`];
         // 用条件循环把模板字符替换到文件去
-        for (var i = 0; i < multiFiles.length; i++) {
+        for (var i = 0; i < compileFiles.length; i++) {
             // 这里记得 try {} catch {} 哦，以便出错时可以终止掉 Spinner
             try {
                 // 等待读取文件
-                const multiFilesContent = await fs.readFile(multiFiles[i], "utf8");
+                const compileFilesContent = await fs.readFile(`${templatePath}/${compileFiles[i]}`, "utf8");
                 // 等待替换文件，handlebars.compile(原文件内容)(模板字符)
-                const multiFilesResult = await handlebars.compile(multiFilesContent)(multiMeta);
+                const compileFilesResult = await handlebars.compile(compileFilesContent)(multiMeta);
                 // 等待输出文件
-                await fs.outputFile(multiFiles[i], multiFilesResult);
+                await fs.outputFile(`${targetPath}/${compileFiles[i]}`, compileFilesResult);
             } catch (err) {
                 // 如果出错，Spinner 就改变文字信息
                 spinner.text = chalk.red(`Initialize project failed. ${err}`);
@@ -161,8 +198,9 @@ export default async function (projectName, options) {
         spinner.succeed();
         console.log("To get started:");
         console.log(`\r\ncd ${chalk.yellow(projectName)}`);
-        console.log(`\r\n   ${chalk.yellow("npm install")}`);
-        console.log(`\r\n   ${chalk.yellow("npm run serve")} `);
+        scripts.forEach(item => {
+            console.log(`\r\n   ${chalk.yellow("npm run " + item)} `);
+        });
     } catch (error) {
         console.info();
         console.log(symbols.error, error);

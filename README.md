@@ -33,6 +33,15 @@ jfe download 360-manager-h5
 jfe upgrade
 ```
 
+### 不链接到全局，直接使用 npx 调试本地命令
+
+```
+npx . -v
+npx . --help
+npx . create test-project
+
+```
+
 ### 可用的模板
 
 -   360-manager-h5 后台管理系统多页项目模板
